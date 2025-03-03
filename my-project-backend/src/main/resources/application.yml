@@ -1,4 +1,17 @@
 spring:
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: 3128970483@qq.com
+    password: womfuejfqzzqdecc
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+  rabbitmq:
+    addresses: localhost
+    username: guest
+    password: guest
+    virtual-host: /
   security:
     filter:
       order: -100
