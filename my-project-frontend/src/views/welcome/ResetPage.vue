@@ -1,10 +1,13 @@
 <script setup>
-import {computed, reactive, ref} from "vue";
+import {computed, reactive, ref, onUnmounted} from "vue";
 import {EditPen, Lock, Message} from "@element-plus/icons-vue";
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 
+const timerId = ref()
+const formRef = ref()
+const coldTime = ref(0)
 const active = ref(0)
 
 const form = reactive({
@@ -14,15 +17,29 @@ const form = reactive({
   password_repeat: ''
 })
 
+const clearTimer = () => {
+  if (timerId.value) {
+    clearInterval(timerId.value)
+    timerId.value = null
+  }
+}
+
+onUnmounted(clearTimer)
+
 function askCode() {
-  if (isEmailValid) {
+  if (isEmailValid.value) {
     coldTime.value = 60
+    clearTimer()
     get(`/api/auth/ask-code?email=${form.email}&type=reset`, () => {
       ElMessage.success(`验证码已发送到邮箱: ${form.email},请注意查收`)
-      setInterval(() => coldTime.value--, 1000)
+      timerId.value = setInterval(() => {
+        coldTime.value--
+        if (coldTime.value <= 0) clearTimer()
+      }, 1000)
     }, (message) => {
       ElMessage.warning(message)
       coldTime.value = 0
+      clearTimer()
     })
   } else {
     ElMessage.warning("请输入正确的电子邮件")
@@ -58,11 +75,6 @@ const rules = {
   ],
 }
 
-const formRef = ref()
-
-const coldTime = ref(0)
-
-
 function confirmReset() {
   formRef.value.validate((isValid) => {
     if (isValid) {
@@ -84,6 +96,8 @@ function doReset() {
     }
   })
 }
+
+
 </script>
 
 <template>
