@@ -56,6 +56,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         synchronized (ip.intern()){
             if (!this.verifyLimit(ip))
                 return "请求频繁,请稍后再试";
+            if (type.equals("reset") && !this.existsAccountByEmail(email))
+                return "该邮箱未注册，请先注册";
             Random random = new Random();
             int code = random.nextInt(899999) + 100000;
             Map<String, Object> data = Map.of("type", type,"email",email ,"code", code);
