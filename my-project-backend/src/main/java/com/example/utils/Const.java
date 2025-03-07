@@ -14,4 +14,8 @@ public class Const {
     public static final String FLOW_LIMIT_BLOCK = "flow:block:";
 
 
+    public final static String ATTR_USER_ID = "userId";
+
+    public final static String ROLE_DEFAULT = "user";
+
 }

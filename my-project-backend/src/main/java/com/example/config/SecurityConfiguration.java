@@ -5,6 +5,7 @@ import com.example.entity.dto.Account;
 import com.example.entity.vo.response.AuthorizeVO;
 import com.example.filter.JwtAuthorizeFilter;
 import com.example.service.AccountService;
+import com.example.utils.Const;
 import com.example.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +41,8 @@ public class SecurityConfiguration {
         return http
                 .authorizeHttpRequests(conf -> conf
                         .requestMatchers("/api/auth/**","/error").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT)
                 )
                 .formLogin(conf -> conf
                         .loginProcessingUrl("/api/auth/login")

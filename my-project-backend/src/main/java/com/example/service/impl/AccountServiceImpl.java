@@ -42,7 +42,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = this.findAccountByNameOrEmail(username);
-        if(account == null)
+        if (account == null)
             throw new UsernameNotFoundException("用户名或密码错误");
         return User
                 .withUsername(username)
@@ -52,34 +52,39 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
+    public Account findAccountById(int id) {
+        return this.query().eq("id", id).one();
+    }
+
+    @Override
     public String registerEmailVerifyCode(String type, String email, String ip) {
-        synchronized (ip.intern()){
+        synchronized (ip.intern()) {
             if (!this.verifyLimit(ip))
                 return "请求频繁,请稍后再试";
             if (type.equals("reset") && !this.existsAccountByEmail(email))
                 return "该邮箱未注册，请先注册";
             Random random = new Random();
             int code = random.nextInt(899999) + 100000;
-            Map<String, Object> data = Map.of("type", type,"email",email ,"code", code);
-            amqpTemplate.convertAndSend("mail",data);
+            Map<String, Object> data = Map.of("type", type, "email", email, "code", code);
+            amqpTemplate.convertAndSend("mail", data);
             stringRedisTemplate.opsForValue()
-                    .set(Const.VERIFY_EMAIL_DATA + email,String.valueOf(code),3, TimeUnit.MINUTES);
+                    .set(Const.VERIFY_EMAIL_DATA + email, String.valueOf(code), 3, TimeUnit.MINUTES);
             return null;
         }
 
     }
 
-    public String registerEmailAccount(EmailRegisterVO vo){
+    public String registerEmailAccount(EmailRegisterVO vo) {
         String email = vo.getEmail();
         String username = vo.getUsername();
         String key = Const.VERIFY_EMAIL_DATA + email;
         String code = stringRedisTemplate.opsForValue().get(key);
-        if(code == null) return "请先获取验证码";
-        if(!code.equals(vo.getCode())) return "验证码错误，请重新输入";
-        if(this.existsAccountByEmail(email)) return "该邮件地址已被注册";
-        if(this.existsAccountByUsername(username)) return "该用户名已被他人使用，请重新更换";
+        if (code == null) return "请先获取验证码";
+        if (!code.equals(vo.getCode())) return "验证码错误，请重新输入";
+        if (this.existsAccountByEmail(email)) return "该邮件地址已被注册";
+        if (this.existsAccountByUsername(username)) return "该用户名已被他人使用，请重新更换";
         String password = encoder.encode(vo.getPassword());
-        Account account = new Account(null, username,password,email,"user",new Date());
+        Account account = new Account(null, username, password, email, "user", new Date());
         if (this.save(account)) {
             stringRedisTemplate.delete(key);
             return null;
@@ -92,7 +97,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public String resetEmailAccountPassword(EmailResetVo vo) {
         String email = vo.getEmail();
         String verify = this.resetConfirm(new ConfirmResetVO(email, vo.getCode()));
-        if(verify!= null) return verify;
+        if (verify != null) return verify;
         String password = encoder.encode(vo.getPassword());
         boolean update = this.update().eq("email", email).set("password", password).update();
         if (update) {
@@ -106,8 +111,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public String resetConfirm(ConfirmResetVO vo) {
         String email = vo.getEmail();
         String code = stringRedisTemplate.opsForValue().get(Const.VERIFY_EMAIL_DATA + email);
-        if(code == null) return "请先获取验证码";
-        if(!code.equals(vo.getCode())) return "验证码错误，请重新输入";
+        if (code == null) return "请先获取验证码";
+        if (!code.equals(vo.getCode())) return "验证码错误，请重新输入";
         return null;
 
     }
@@ -115,21 +120,21 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public Account findAccountByNameOrEmail(String text) {
         return this.query()
                 .eq("username", text).or()
-                .eq("email",text)
+                .eq("email", text)
                 .one();
     }
 
 
-    private boolean existsAccountByEmail(String email){
+    private boolean existsAccountByEmail(String email) {
         return this.baseMapper.exists(Wrappers.<Account>query().eq("email", email));
     }
 
-    private boolean existsAccountByUsername(String username){
+    private boolean existsAccountByUsername(String username) {
         return this.baseMapper.exists(Wrappers.<Account>query().eq("username", username));
     }
 
     private boolean verifyLimit(String ip) {
         String key = Const.VERIFY_EMAIL_LIMIT + ip;
-        return utils.limitOnceCheck(key,60);
+        return utils.limitOnceCheck(key, 60);
     }
 }
