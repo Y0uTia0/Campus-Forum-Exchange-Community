@@ -9,6 +9,7 @@ import com.example.service.AccountDetailsService;
 import com.example.service.AccountService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountDetailsServiceImpl extends ServiceImpl<AccountDetailsMapper, AccountDetails> implements AccountDetailsService {
@@ -23,6 +24,7 @@ public class AccountDetailsServiceImpl extends ServiceImpl<AccountDetailsMapper,
     }
 
     @Override
+    @Transactional
     public synchronized boolean saveAccountDetails(int id, DetailsSaveVO vo) {
         Account account = service.findAccountByNameOrEmail(vo.getUsername());
         if (account == null || account.getId() == id) {
