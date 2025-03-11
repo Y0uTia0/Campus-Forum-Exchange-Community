@@ -7,9 +7,12 @@ import com.example.entity.dto.AccountDetails;
 import com.example.entity.vo.request.ChangePasswordVO;
 import com.example.entity.vo.request.DetailsSaveVO;
 import com.example.entity.vo.request.ModifyEmailVO;
+import com.example.entity.vo.request.PrivacySaveVO;
 import com.example.entity.vo.response.AccountDetailsVO;
+import com.example.entity.vo.response.AccountPrivacyVO;
 import com.example.entity.vo.response.AccountVO;
 import com.example.service.AccountDetailsService;
+import com.example.service.AccountPrivacyService;
 import com.example.service.AccountService;
 import com.example.utils.Const;
 import jakarta.annotation.Resource;
@@ -29,6 +32,9 @@ public class AccountController {
     @Resource
     AccountDetailsService detailsService;
 
+    @Resource
+    AccountPrivacyService privacyService;
+
     @GetMapping("/info")
     public RestBean<AccountVO> info(@RequestAttribute(Const.ATTR_USER_ID) int id) {
         Account account = service.findAccountById(id);
@@ -45,7 +51,7 @@ public class AccountController {
 
     @PostMapping("/save-details")
     public RestBean<Void> saveDetails(@RequestAttribute(Const.ATTR_USER_ID) int id,
-                                        @RequestBody @Valid DetailsSaveVO vo) {
+                                      @RequestBody @Valid DetailsSaveVO vo) {
         boolean success = detailsService.saveAccountDetails(id, vo);
         return success ? RestBean.success() : RestBean.failure(400, "此用户名已被其他用户使用,请重新更换!");
     }
@@ -53,15 +59,28 @@ public class AccountController {
 
     @PostMapping("/modify-email")
     public RestBean<Void> modifyEmail(@RequestAttribute(Const.ATTR_USER_ID) int id,
-                                        @RequestBody @Valid ModifyEmailVO vo) {
+                                      @RequestBody @Valid ModifyEmailVO vo) {
         return this.messageHandle(() -> service.modifyEmail(id, vo));
     }
 
     @PostMapping("/change-password")
     public RestBean<Void> changePassword(@RequestAttribute(Const.ATTR_USER_ID) int id,
-                                            @RequestBody @Valid ChangePasswordVO vo) {
+                                         @RequestBody @Valid ChangePasswordVO vo) {
         return this.messageHandle(() -> service.changePassword(id, vo));
     }
+
+    @PostMapping("/save-privacy")
+    public RestBean<Void> savePrivacy(@RequestAttribute(Const.ATTR_USER_ID) int id,
+                                      @RequestBody @Valid PrivacySaveVO vo) {
+        privacyService.savePrivacy(id, vo);
+        return RestBean.success();
+    }
+
+    @GetMapping("/privacy")
+    public RestBean<AccountPrivacyVO> privacy(@RequestAttribute(Const.ATTR_USER_ID) int id) {
+        return RestBean.success(privacyService.accountPrivacy(id).asViewObject(AccountPrivacyVO.class));
+    }
+
 
     private RestBean<Void> messageHandle(Supplier<String> action) {
         String message = action.get();
