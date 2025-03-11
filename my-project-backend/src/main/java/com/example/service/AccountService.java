@@ -2,18 +2,23 @@ package com.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.entity.dto.Account;
-import com.example.entity.vo.request.ConfirmResetVO;
-import com.example.entity.vo.request.EmailRegisterVO;
-import com.example.entity.vo.request.EmailResetVo;
-import com.example.entity.vo.request.ModifyEmailVO;
+import com.example.entity.vo.request.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface AccountService extends IService<Account> , UserDetailsService {
+public interface AccountService extends IService<Account>, UserDetailsService {
     Account findAccountByNameOrEmail(String text);
+
     Account findAccountById(int id);
-    String registerEmailVerifyCode(String type,String email,String ip);
+
+    String registerEmailVerifyCode(String type, String email, String ip);
+
     String registerEmailAccount(EmailRegisterVO vo);
+
     String resetConfirm(ConfirmResetVO vo);
+
     String resetEmailAccountPassword(EmailResetVo vo);
+
     String modifyEmail(int id, ModifyEmailVO vo);
+
+    String changePassword(int id, ChangePasswordVO vo);
 }
