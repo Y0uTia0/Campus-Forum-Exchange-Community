@@ -4,14 +4,18 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.entity.dto.Account;
 import com.example.mapper.AccountMapper;
 import com.example.service.ImageService;
+import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.UUID;
 
 @Slf4j
@@ -24,6 +28,15 @@ public class ImageServiceImpl implements ImageService {
     @Resource
     AccountMapper mapper;
 
+    @Override
+    public void fetchImageFromMinio(OutputStream stream, String image) throws Exception {
+        GetObjectArgs args = GetObjectArgs.builder()
+                .bucket("study")
+                .object(image)
+                .build();
+        GetObjectResponse response = client.getObject(args);
+        IOUtils.copy(response,stream);
+    }
 
     @Override
     public String uploadAvatar(MultipartFile file, int id) throws IOException {
