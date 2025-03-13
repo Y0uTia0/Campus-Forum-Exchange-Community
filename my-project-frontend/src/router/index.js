@@ -13,11 +13,11 @@ const router = createRouter({
                     path: "",
                     name: "welcome-login",
                     component: () => import("@/views/welcome/LoginPage.vue")
-                },{
+                }, {
                     path: "register",
                     name: "welcome-register",
                     component: () => import("@/views/welcome/RegisterPage.vue")
-                },{
+                }, {
                     path: "reset",
                     name: "welcome-reset",
                     component: () => import("@/views/welcome/ResetPage.vue")
@@ -27,15 +27,20 @@ const router = createRouter({
             path: "/index",
             name: "index",
             component: () => import("@/views/IndexView.vue"),
-            children: [{
-                path: "user-setting",
-                name: "user-setting",
-                component: () => import("@/views/settings/UserSetting.vue")
-            },{
-                path: "privacy-setting",
-                name: "privacy-setting",
-                component: () => import("@/views/settings/PrivacySetting.vue")
-            }
+            children: [
+                {
+                    path: "",
+                    name: "topic-list",
+                    component: () => import("@/views/forum/TopicList.vue")
+                }, {
+                    path: "user-setting",
+                    name: "user-setting",
+                    component: () => import("@/views/settings/UserSetting.vue")
+                }, {
+                    path: "privacy-setting",
+                    name: "privacy-setting",
+                    component: () => import("@/views/settings/PrivacySetting.vue")
+                }
             ]
         }
     ]
