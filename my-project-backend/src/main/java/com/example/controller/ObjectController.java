@@ -20,6 +20,7 @@ public class ObjectController {
 
     @GetMapping("/images/avatar/**")
     public void imageFetch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setHeader("Content-Type", "image/jpg");
         this.fetchImage(request, response);
     }
 

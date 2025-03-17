@@ -17,5 +17,9 @@ public class Const {
     public final static String ATTR_USER_ID = "userId";
 
     public final static String ROLE_DEFAULT = "user";
+    //论坛相关
+    public final static String FORUM_WEATHER_CACHE = "weather:cache:";
+    public final static String FORUM_IMAGE_COUNTER = "forum:image:";
+
 
 }
