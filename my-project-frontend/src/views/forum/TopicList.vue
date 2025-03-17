@@ -1,23 +1,54 @@
 <script setup>
 
-import Card from "@/components/Card.vue";
 import LightCard from "@/components/LightCard.vue";
 import {Calendar, CollectionTag, EditPen} from "@element-plus/icons-vue";
 import Weather from "@/components/Weather.vue";
-import {computed} from "vue";
+import {computed, reactive, ref} from "vue";
+import {ElMessage} from "element-plus";
+import {get} from "@/net";
+import TopicEditor from "@/components/TopicEditor.vue";
+
+const weather = reactive({
+  location: {},
+  now: {},
+  hourly: [],
+  success: false
+})
+
+const editor = ref(false)
+
 
 const today = computed(() => {
   const date = new Date()
   return `${date.getFullYear()} 年 ${date.getMonth()} 月 ${date.getDay()} 日`
 })
 
+
+navigator.geolocation.getCurrentPosition(position => {
+  const longitude = position.coords.longitude
+  const latitude = position.coords.latitude
+  get(`/api/forum/weather?longitude=${longitude}&latitude=${latitude}`, data => {
+    Object.assign(weather, data)
+    weather.success = true
+  })
+}, error => {
+  console.info(error)
+  ElMessage.warning('位置信息获取超时,请检查网络设置')
+  get(`/api/forum/weather?longitude=116.40529&latitude=39.90499`, data => {
+    Object.assign(weather.data)
+    weather.success = true
+  })
+}, {
+  timeout: 3000,
+  enableHighAccuracy: true
+})
 </script>
 
 <template>
   <div style="display: flex;margin: 20px auto;gap: 20px;max-width: 900px">
     <div style="flex: 1">
       <light-card>
-        <div class="create-topic">
+        <div class="create-topic" @click="editor = true">
           <el-icon>
             <EditPen/>
           </el-icon>
@@ -55,7 +86,7 @@ const today = computed(() => {
             天气信息
           </div>
           <el-divider style="margin: 10px 0"/>
-          <weather/>
+          <weather :data="weather"/>
         </light-card>
         <light-card style="margin-top: 10px">
           <div class="info-text">
@@ -87,6 +118,7 @@ const today = computed(() => {
         </div>
       </div>
     </div>
+    <topic-editor :show="editor" @close="editor = false"/>
   </div>
 </template>
 

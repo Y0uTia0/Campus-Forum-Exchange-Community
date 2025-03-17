@@ -40,7 +40,7 @@ public class WeatherServiceImpl implements WeatherService {
         if (geo == null) {
             return null;
         }
-        JSONObject location = geo.getJSONObject("location");
+        JSONObject location = geo.getJSONArray("location").getJSONObject(0);
         int id = location.getInteger("id");
         String key = "weather" + id;
         String cache = template.opsForValue().get(key);
