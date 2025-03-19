@@ -1,6 +1,6 @@
 <script setup>
 import {Check, Document} from "@element-plus/icons-vue";
-import {reactive,ref,computed} from "vue";
+import {reactive, ref, computed} from "vue";
 import {Quill, QuillEditor} from "@vueup/vue-quill";
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import ImageResize from "quill-image-resize-vue";
@@ -9,6 +9,7 @@ import axios from "axios";
 import {accessHeader, post} from "@/net/index.js";
 import {ElMessage} from "element-plus";
 import {get} from "@/net";
+import ColorDot from "@/components/ColorDot.vue";
 
 
 defineProps({
@@ -18,7 +19,7 @@ defineProps({
 Quill.register('modules/imageResize', ImageResize)
 Quill.register('modules/ImageExtend', ImageExtend)
 
-const emit = defineEmits(['close','success'])
+const emit = defineEmits(['close', 'success'])
 
 const editor = reactive({
   type: null,
@@ -82,7 +83,7 @@ const editorOptions = {
 const refEditor = ref()
 
 function initEditor() {
-  refEditor.value.setContents('','user')
+  refEditor.value.setContents('', 'user')
   editor.title = ''
   editor.type = null
 }
@@ -112,7 +113,7 @@ function submitTopic() {
     return
   }
   post('/api/forum/create-topic', {
-    type: editor.type,
+    type: editor.type.id,
     title: editor.title,
     content: editor.text
   }, () => {
@@ -142,8 +143,13 @@ get('/api/forum/types', data => editor.types = data)
       </template>
       <div style="display: flex;gap: 10px">
         <div style="width: 160px">
-          <el-select placeholder="请选择主题类型..." v-model="editor.type" :disabled="!editor.types.length">
-            <el-option v-for="item in editor.types" :value="item.id" :label="item.name"/>
+          <el-select placeholder="请选择主题类型..." value-key="id" v-model="editor.type" :disabled="!editor.types.length">
+            <el-option v-for="item in editor.types" :value="item" :label="item.name">
+              <div>
+                <color-dot :color="item.color"/>
+                <span style="margin-left: 10px">{{ item.name }}</span>
+              </div>
+            </el-option>
           </el-select>
         </div>
         <div style="flex: 1">
@@ -151,7 +157,11 @@ get('/api/forum/types', data => editor.types = data)
                     style="height: 100%" maxlength="30"/>
         </div>
       </div>
-      <div style="margin-top: 15px;height: 460px;overflow: hidden;border-radius: 5px" v-loading="editor.uploading"
+      <div style="margin-top: 5px;font-size: 13px;color: grey">
+        <color-dot :color="editor.type ? editor.type.color : '#dedede'"/>
+        <span style="margin-left: 5px">{{editor.type ? editor.type.desc : '请在上方选择一个帖子类型!'}}</span>
+      </div>
+      <div style="margin-top: 10px;height: 440px;overflow: hidden;border-radius: 5px" v-loading="editor.uploading"
            element-loading-text="正在上传图片,请稍后...">
         <quill-editor v-model:content="editor.text" style="height: calc(100% - 45px)"
                       content-type="delta" ref="refEditor"
