@@ -29,3 +29,7 @@ spring:
     password: 'minioadmin'
   weather:
     key: 882d444d4c274958ae584c022eb6b809
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

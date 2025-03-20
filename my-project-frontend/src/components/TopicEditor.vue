@@ -10,6 +10,7 @@ import {accessHeader, post} from "@/net/index.js";
 import {ElMessage} from "element-plus";
 import {get} from "@/net";
 import ColorDot from "@/components/ColorDot.vue";
+import {useStore} from "@/store/index.js";
 
 
 defineProps({
@@ -20,13 +21,13 @@ Quill.register('modules/imageResize', ImageResize)
 Quill.register('modules/ImageExtend', ImageExtend)
 
 const emit = defineEmits(['close', 'success'])
+const store = useStore()
 
 const editor = reactive({
   type: null,
   title: '',
   text: '',
-  loading: false,
-  types: []
+  loading: false
 })
 
 const editorOptions = {
@@ -122,9 +123,6 @@ function submitTopic() {
   })
 }
 
-
-get('/api/forum/types', data => editor.types = data)
-
 </script>
 
 <template>
@@ -143,8 +141,8 @@ get('/api/forum/types', data => editor.types = data)
       </template>
       <div style="display: flex;gap: 10px">
         <div style="width: 160px">
-          <el-select placeholder="请选择主题类型..." value-key="id" v-model="editor.type" :disabled="!editor.types.length">
-            <el-option v-for="item in editor.types" :value="item" :label="item.name">
+          <el-select placeholder="请选择主题类型..." value-key="id" v-model="editor.type" :disabled="!store.forum.types.length">
+            <el-option v-for="item in store.forum.types" :value="item" :label="item.name">
               <div>
                 <color-dot :color="item.color"/>
                 <span style="margin-left: 10px">{{ item.name }}</span>
