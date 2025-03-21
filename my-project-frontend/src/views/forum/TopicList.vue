@@ -20,6 +20,7 @@ import TopicEditor from "@/components/TopicEditor.vue";
 import {useStore} from "@/store/index.js";
 import axios from "axios";
 import ColorDot from "@/components/ColorDot.vue";
+import router from "@/router/index.js";
 
 const weather = reactive({
   location: {},
@@ -88,7 +89,7 @@ navigator.geolocation.getCurrentPosition(position => {
   console.info(error)
   ElMessage.warning('位置信息获取超时,请检查网络设置')
   get(`/api/forum/weather?longitude=116.40529&latitude=39.90499`, data => {
-    Object.assign(weather.data)
+    Object.assign(weather,data)
     weather.success = true
   })
 }, {
@@ -133,7 +134,7 @@ navigator.geolocation.getCurrentPosition(position => {
       <transition name="el-fade-in" mode="out-in">
         <div v-if="topics.list.length">
           <div style="margin-top: 10px;display: flex;flex-direction: column;gap: 10px" v-infinite-scroll="updateList">
-            <light-card v-for="item in topics.list" class="topic-card">
+            <light-card v-for="item in topics.list" class="topic-card" @click="router.push('/index/topic-detail/'+item.id)">
               <div style="display: flex">
                 <div>
                   <el-avatar :size="30" :src="`${axios.defaults.baseURL}/images${item.avatar}`"/>

@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.entity.BaseData;
 import lombok.Data;
 
+import java.lang.reflect.Field;
+import java.util.LinkedList;
+
 @Data
 @TableName("db_account_privacy")
 public class AccountPrivacy implements BaseData {
@@ -17,5 +20,17 @@ public class AccountPrivacy implements BaseData {
     boolean qq = true;
     boolean gender = true;
 
+    public String[] hiddenFields() {
+        LinkedList<String> strings = new LinkedList<>();
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                if (field.getType().equals(boolean.class) && !field.getBoolean(this))
+                    strings.add(field.getName());
+            } catch (Exception ignored) {
 
+            }
+        }
+        return strings.toArray(String[]::new);
+    }
 }
