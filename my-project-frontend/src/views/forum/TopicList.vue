@@ -21,6 +21,8 @@ import {useStore} from "@/store/index.js";
 import axios from "axios";
 import ColorDot from "@/components/ColorDot.vue";
 import router from "@/router/index.js";
+import Store from "element-plus/es/components/cascader-panel/src/store";
+import TopicTag from "@/components/TopicTag.vue";
 
 const weather = reactive({
   location: {},
@@ -28,8 +30,8 @@ const weather = reactive({
   hourly: [],
   success: false
 })
-
 const store = useStore()
+
 const editor = ref(false)
 const topics = reactive({
   list: [],
@@ -46,12 +48,7 @@ const today = computed(() => {
   const date = new Date()
   return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`
 })
-get('/api/forum/types', data => {
-  const array = []
-  array.push({name: '全部', id: 0, color: 'linear-gradient(45deg, white, red, orange, gold, green, blue)'})
-  data.forEach(d => array.push(d))
-  store.forum.types = array
-})
+
 get('/api/forum/top-topic', data => topics.top = data)
 
 function updateList() {
@@ -117,7 +114,7 @@ navigator.geolocation.getCurrentPosition(position => {
         </div>
       </light-card>
       <light-card style="margin-top: 10px;display: flex;flex-direction: column;gap: 10px">
-        <div v-for="item in topics.top" class="top-topic">
+        <div v-for="item in topics.top" class="top-topic" @click="router.push(`/index/topic-detail/${item.id}`)">
           <el-tag type="info" size="small">置顶</el-tag>
           <div>{{ item.title }}</div>
           <div>{{ new Date(item.time).toLocaleDateString() }}</div>
@@ -151,15 +148,9 @@ navigator.geolocation.getCurrentPosition(position => {
                   </div>
                 </div>
               </div>
-              <div style="margin-top: 5px">
-                <div class="topic-type" :style="{
-              color: store.findTypeById(item.type)?.color + 'EE',
-              'border-color': store.findTypeById(item.type)?.color + '77',
-              'background': store.findTypeById(item.type)?.color + '33'
-            }">
-                  {{ store.findTypeById(item.type)?.name }}
-                </div>
-                <span style="font-weight: bold;margin-left: 7px">{{ item.title }}</span>
+              <div style="margin-top: 5px; display: flex; align-items: center; gap: 7px">
+                <topic-tag :type="item.type"/>
+                <span style="font-weight: bold">{{ item.title }}</span>
               </div>
               <div class="topic-card">{{ item.text }}</div>
               <div style="display: grid;grid-template-columns: repeat(3,1fr);grid-gap: 10px">
@@ -297,14 +288,7 @@ navigator.geolocation.getCurrentPosition(position => {
     text-overflow: ellipsis;
   }
 
-  .topic-type {
-    display: inline-block;
-    border: solid 0.5px grey;
-    border-radius: 3px;
-    font-size: 12px;
-    padding: 0 5px;
-    height: 18px;
-  }
+
 
   .topic-image {
     width: 100%;
