@@ -21,7 +21,11 @@ const topic = reactive({
   comments: []
 })
 
-get(`/api/forum/topic?tid=${tid}`, data => topic.data = data)
+get(`/api/forum/topic?tid=${tid}`, data => {
+  topic.data = data
+  topic.like = data.interact.like
+  topic.collect = data.interact.collect
+})
 
 const content = computed(() => {
   const ops = JSON.parse(topic.data.content).ops
@@ -30,8 +34,8 @@ const content = computed(() => {
 })
 
 function interact(type, message) {
-  get(`/api/forum/interact?tid=${tid}&type=${type}&state=${!topic[type]}`,() => {
-    topic[type] =!topic[type]
+  get(`/api/forum/interact?tid=${tid}&type=${type}&state=${!topic[type]}`, () => {
+    topic[type] = !topic[type]
     if (topic[type])
       ElMessage.success(`${message}成功!`)
     else
@@ -45,7 +49,8 @@ function interact(type, message) {
     <div class="topic-main" style="position: sticky;top: 0;z-index: 10">
       <card style="display: flex;width: 100%;">
         <el-button :icon="ArrowLeft" type="info" size="small"
-                   plain round @click="router.push('/index')">返回列表</el-button>
+                   plain round @click="router.push('/index')">返回列表
+        </el-button>
         <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px">
           <topic-tag :type="topic.data.type"/>
           <span style="font-weight: bold">{{ topic.data.title }}</span>
@@ -81,15 +86,23 @@ function interact(type, message) {
       </div>
       <div class="topic-main-right">
         <div class="topic-content" v-html="content"></div>
+        <el-divider/>
+        <div style="font-size: 13px;color: grey;text-align: center">
+          <div>发帖时间:{{ new Date(topic.data.time).toLocaleString() }}</div>
+        </div>
         <div style="text-align: right;margin-top: 30px">
           <interact-button name="点个赞吧" check-name="已点赞" color="pink" :check="topic.like"
                            @check="interact('like','点赞')">
-            <el-icon><CircleCheck/></el-icon>
+            <el-icon>
+              <CircleCheck/>
+            </el-icon>
           </interact-button>
           <interact-button name="收藏本帖" check-name="已收藏" color="orange" :check="topic.collect"
                            @check="interact('collect','收藏')"
                            style="margin-left: 20px">
-            <el-icon><Star/></el-icon>
+            <el-icon>
+              <Star/>
+            </el-icon>
           </interact-button>
         </div>
       </div>
