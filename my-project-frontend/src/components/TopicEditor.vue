@@ -1,7 +1,7 @@
 <script setup>
 import {Check, Document} from "@element-plus/icons-vue";
 import {reactive, ref, computed} from "vue";
-import {Quill, QuillEditor} from "@vueup/vue-quill";
+import {Delta, Quill, QuillEditor} from "@vueup/vue-quill";
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import ImageResize from "quill-image-resize-vue";
 import {ImageExtend, QuillWatch} from "quill-image-super-solution-module";
@@ -13,8 +13,37 @@ import ColorDot from "@/components/ColorDot.vue";
 import {useStore} from "@/store/index.js";
 
 
-defineProps({
-  show: Boolean
+const props = defineProps({
+  show: Boolean,
+  defaultTitle: {
+    default: '',
+    type: String
+  },
+  defaultText: {
+    default: '',
+    type: String
+  },
+  defaultType: {
+    default: null,
+    type: Number
+  },
+  submitButton: {
+    default: '立即发表主题',
+    type: String
+  },
+  submit: {
+    default: (editor, success) => {
+      post('/api/forum/create-topic', {
+        type: editor.type.id,
+        title: editor.title,
+        content: editor.text
+      }, () => {
+        ElMessage.success("帖子发表成功!")
+        success()
+      })
+    },
+    type: Function
+  }
 })
 
 Quill.register('modules/imageResize', ImageResize)
@@ -84,9 +113,12 @@ const editorOptions = {
 const refEditor = ref()
 
 function initEditor() {
-  refEditor.value.setContents('', 'user')
-  editor.title = ''
-  editor.type = null
+  if (props.defaultText)
+    editor.text = new Delta(JSON.parse(props.defaultText))
+  else
+    refEditor.value.setContents('', 'user')
+  editor.title = props.defaultTitle
+  editor.type = findTypeById(props.defaultType)
 }
 
 function deltaToText(delta) {
@@ -95,6 +127,13 @@ function deltaToText(delta) {
   for (let op of delta.ops)
     str += op.insert
   return str.replace(/\s/g, "")
+}
+
+function findTypeById(id) {
+  for (let type of store.forum.types) {
+    if (type.id == id)
+      return type
+  }
 }
 
 const contentLength = computed(() => deltaToText(editor.text).length)
@@ -113,14 +152,8 @@ function submitTopic() {
     ElMessage.warning('请选择一个合适的帖子类型!')
     return
   }
-  post('/api/forum/create-topic', {
-    type: editor.type.id,
-    title: editor.title,
-    content: editor.text
-  }, () => {
-    ElMessage.success('帖子发表成功!')
-    emit('success')
-  })
+  props.submit(editor,( ) =>emit('success'))
+
 }
 
 </script>
@@ -141,7 +174,8 @@ function submitTopic() {
       </template>
       <div style="display: flex;gap: 10px">
         <div style="width: 160px">
-          <el-select placeholder="请选择主题类型..." value-key="id" v-model="editor.type" :disabled="!store.forum.types.length">
+          <el-select placeholder="请选择主题类型..." value-key="id" v-model="editor.type"
+                     :disabled="!store.forum.types.length">
             <el-option v-for="item in store.forum.types.filter(type => type.id > 0)" :value="item" :label="item.name">
               <div>
                 <color-dot :color="item.color"/>
@@ -157,7 +191,7 @@ function submitTopic() {
       </div>
       <div style="margin-top: 5px;font-size: 13px;color: grey">
         <color-dot :color="editor.type ? editor.type.color : '#dedede'"/>
-        <span style="margin-left: 5px">{{editor.type ? editor.type.desc : '请在上方选择一个帖子类型!'}}</span>
+        <span style="margin-left: 5px">{{ editor.type ? editor.type.desc : '请在上方选择一个帖子类型!' }}</span>
       </div>
       <div style="margin-top: 10px;height: 440px;overflow: hidden;border-radius: 5px" v-loading="editor.uploading"
            element-loading-text="正在上传图片,请稍后...">
@@ -170,7 +204,7 @@ function submitTopic() {
           当前字数 {{ contentLength }} (最大支持20000字)
         </div>
         <div>
-          <el-button type="success" plain :icon="Check" @click="submitTopic">立即发布</el-button>
+          <el-button type="success" plain :icon="Check" @click="submitTopic">{{ submitButton }}</el-button>
         </div>
       </div>
     </el-drawer>
