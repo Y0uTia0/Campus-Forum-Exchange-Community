@@ -71,7 +71,7 @@ public class ForumController {
     @GetMapping("/topic")
     public RestBean<TopicDetailVO> topic(@RequestParam @Min(0) int tid,
                                          @RequestAttribute(Const.ATTR_USER_ID) int id) {
-        return RestBean.success(topicService.getTopic(tid,id));
+        return RestBean.success(topicService.getTopic(tid, id));
     }
 
     @GetMapping("/interact")
@@ -96,7 +96,7 @@ public class ForumController {
 
     @PostMapping("/add-comment")
     public RestBean<Void> addComment(@Valid @RequestBody AddCommentVO vo,
-                                     @RequestAttribute(Const.ATTR_USER_ID)int id) {
-return utils.messageHandle(() -> topicService.createComment(id,vo));
+                                     @RequestAttribute(Const.ATTR_USER_ID) int id) {
+        return utils.messageHandle(() -> topicService.createComment(id, vo));
     }
 }

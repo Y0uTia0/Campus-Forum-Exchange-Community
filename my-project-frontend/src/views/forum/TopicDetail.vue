@@ -1,7 +1,7 @@
 <script setup>
 import {useRoute} from "vue-router";
 import {get, post} from "@/net";
-import {ArrowLeft, CircleCheck, EditPen, Female, Male, Star} from "@element-plus/icons-vue";
+import {ArrowLeft, CircleCheck, EditPen, Female, Male, Plus, Star} from "@element-plus/icons-vue";
 import {reactive, computed} from "vue";
 import axios from "axios";
 import {QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
@@ -12,6 +12,7 @@ import {ElMessage} from "element-plus";
 import {useStore} from "@/store/index.js";
 import TopicEditor from "@/components/TopicEditor.vue";
 import {ref} from "vue";
+import TopicCommentEditor from "@/components/TopicCommentEditor.vue";
 
 const route = useRoute()
 
@@ -38,6 +39,11 @@ const content = computed(() => {
 })
 
 const edit = ref(false)
+const comment = reactive({
+  show: false,
+  text: '',
+  quote: -1
+})
 
 function interact(type, message) {
   get(`/api/forum/interact?tid=${tid}&type=${type}&state=${!topic[type]}`, () => {
@@ -136,10 +142,36 @@ function updateTopic(editor) {
     <topic-editor :show="edit" @close="edit = false" v-if="topic.data && store.forum.types"
                   :default-type="topic.data.type" :default-text="topic.data.content"
                   :default-title="topic.data.title" submit-button="更新帖子内容" :submit="updateTopic"/>
+    <topic-comment-editor :show="comment.show" @close="comment.show = false" :tid="tid"
+    :quote="comment.quote"/>
+    <div class="add-comment" @click="comment.show = true" >
+      <el-icon>
+        <Plus/>
+      </el-icon>
+    </div>
   </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
+.add-comment {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--el-color-primary);
+  text-align: center;
+  line-height: 45px;
+  background: var(--el-bg-color-overlay);
+  box-shadow: var(--el-box-shadow-lighter);
+
+  &:hover {
+    background: var(--el-border-color-extra-light);
+    cursor: pointer;
+  }
+}
 
 .desc {
 }

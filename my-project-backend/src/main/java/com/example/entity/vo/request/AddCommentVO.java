@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class AddCommentVO {
     @Min(1)
-    int id;
+    int tid;
     String content;
     @Min(-1)
     int quote;
