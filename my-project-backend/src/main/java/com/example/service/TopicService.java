@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.entity.dto.Interact;
 import com.example.entity.dto.Topic;
 import com.example.entity.dto.TopicType;
+import com.example.entity.vo.request.AddCommentVO;
 import com.example.entity.vo.request.TopicCreateVO;
 import com.example.entity.vo.request.TopicUpdateVO;
 import com.example.entity.vo.response.TopicDetailVO;
@@ -28,4 +29,6 @@ public interface TopicService extends IService<Topic> {
     List<TopicPreviewVO> listTopicCollects(int uid);
 
     String updateTopic(int uid, TopicUpdateVO vo);
+
+    String createComment(int uid, AddCommentVO vo);
 }
