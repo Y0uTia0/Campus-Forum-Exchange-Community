@@ -56,8 +56,9 @@ const editor = reactive({
   type: null,
   title: '',
   text: '',
-  loading: false
-})
+  loading: false,
+  uploading: false
+});
 
 const editorOptions = {
   modules: {
@@ -118,15 +119,16 @@ function initEditor() {
   else
     refEditor.value.setContents('', 'user')
   editor.title = props.defaultTitle
-  editor.type = findTypeById(props.defaultType)
+  editor.type = findTypeById(props.defaultType) || null;
 }
 
 function deltaToText(delta) {
-  if (!delta.ops) return ""
-  let str = ""
-  for (let op of delta.ops)
-    str += op.insert
-  return str.replace(/\s/g, "")
+  if (!delta?.ops) return "";
+  let str = "";
+  for (const op of delta.ops) {
+    if (typeof op.insert === 'string') str += op.insert;
+  }
+  return str.replace(/\s/g, "");
 }
 
 function findTypeById(id) {
@@ -159,7 +161,6 @@ function submitTopic() {
 </script>
 
 <template>
-  <div>
     <el-drawer :model-value="show"
                direction="btt"
                @open="initEditor"
@@ -208,7 +209,6 @@ function submitTopic() {
         </div>
       </div>
     </el-drawer>
-  </div>
 </template>
 
 <style scoped>

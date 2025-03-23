@@ -19,14 +19,19 @@ public class CorsFilter extends HttpFilter {
     protected void doFilter(HttpServletRequest request,
                             HttpServletResponse response,
                             FilterChain chain) throws IOException, ServletException {
-        this.addCorsHeader(request,response);
+        this.addCorsHeader(request, response);
+        if (request.getMethod().equals("OPTIONS")) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
         chain.doFilter(request, response);
     }
-private void addCorsHeader(HttpServletRequest request,
-                            HttpServletResponse response) {
-    response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-    response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-}
+    private void addCorsHeader(HttpServletRequest request,
+                               HttpServletResponse response) {
+        response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // 已包含OPTIONS
+        response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        response.addHeader("Access-Control-Allow-Credentials", "true"); // 如果前端携带凭证需添加
+    }
 
 }
