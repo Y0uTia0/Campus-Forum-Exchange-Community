@@ -3,14 +3,17 @@ package com.example.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.Account;
+import com.example.entity.dto.AccountDetails;
+import com.example.entity.dto.AccountPrivacy;
 import com.example.entity.vo.request.*;
+import com.example.mapper.AccountDetailsMapper;
 import com.example.mapper.AccountMapper;
+import com.example.mapper.AccountPrivacyMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
 import com.example.utils.FlowUtils;
 import jakarta.annotation.Resource;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,7 +41,15 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Resource
     PasswordEncoder encoder;
-    @Autowired
+
+    @Resource
+    AccountPrivacyMapper privacyMapper;
+
+    @Resource
+    AccountDetailsMapper detailsMapper;
+
+
+    @Resource
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
@@ -87,11 +98,15 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if (this.existsAccountByUsername(username)) return "该用户名已被他人使用，请重新更换";
         String password = encoder.encode(vo.getPassword());
         Account account = new Account(null, username, password, email, "user",null, new Date());
-        if (this.save(account)) {
-            stringRedisTemplate.delete(key);
-            return null;
-        } else {
+        if (!this.save(account)) {
             return "内部错误,请联系管理员";
+        } else {
+            this.deleteEmailVerifyCode(email);
+            privacyMapper.insert(new AccountPrivacy(account.getId()));
+            AccountDetails details = new AccountDetails();
+            details.setId(account.getId());
+            detailsMapper.insert(details);
+            return null;
         }
     }
 
