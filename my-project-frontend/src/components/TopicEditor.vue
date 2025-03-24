@@ -89,7 +89,7 @@ const editorOptions = {
       accept: 'image/png,image/jpeg',
       response: (resp) => {
         if (resp.data) {
-          return axios.defaults.baseURL + '/image' + resp.data
+          return axios.defaults.baseURL + '/images' + resp.data
         } else {
           return null
         }
