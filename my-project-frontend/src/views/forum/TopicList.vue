@@ -19,10 +19,8 @@ import {ElMessage} from "element-plus";
 import {get} from "@/net";
 import TopicEditor from "@/components/TopicEditor.vue";
 import {useStore} from "@/store/index.js";
-import axios from "axios";
 import ColorDot from "@/components/ColorDot.vue";
 import router from "@/router/index.js";
-import Store from "element-plus/es/components/cascader-panel/src/store";
 import TopicTag from "@/components/TopicTag.vue";
 import TopicCollectList from "@/components/TopicCollectList.vue";
 
@@ -191,8 +189,48 @@ navigator.geolocation.getCurrentPosition(position => {
             论坛公告
             <el-divider style="margin: 10px 0"/>
           </div>
-          <div style="font-size: 14px;margin: 10px;color: grey">
-            我是论坛公告文本内容
+          <div style="font-size: 14px;margin: 10px;color: grey;line-height: 1.8">
+            <div style="margin: 8px 0">
+              <el-icon><CircleCheck /></el-icon>
+              <strong style="margin-left: 5px">欢迎来到校园论坛！</strong> 我们致力于打造优质的技术交流社区
+            </div>
+
+            <el-divider style="margin: 12px 0" border-style="dashed"/>
+
+            <div style="margin: 8px 0">
+              <el-icon><Warning /></el-icon>
+              <strong style="margin-left: 5px">社区规范：</strong>
+              <div style="margin-left: 24px">
+                ▶ 禁止发布广告/敏感内容<br>
+                ▶ 技术讨论需遵守开源协议<br>
+                ▶ 友善交流，禁止人身攻击<br>
+                ▶ 提问前请先搜索历史帖子
+              </div>
+            </div>
+
+            <el-divider style="margin: 12px 0" border-style="dashed"/>
+
+            <div style="margin: 8px 0">
+              <el-icon><Promotion /></el-icon>
+              <strong style="margin-left: 5px">最新动态：</strong>
+              <div style="margin-left: 24px">
+                🔸 新增「代码片段」快捷分享功能(2024.03.15)<br>
+                🔸 用户等级系统上线，发帖可获积分(2024.03.10)<br>
+                🔸 移动端适配优化，欢迎反馈使用体验
+              </div>
+            </div>
+
+            <el-divider style="margin: 12px 0" border-style="dashed"/>
+
+            <div style="margin: 8px 0">
+              <el-icon><ChatLineRound /></el-icon>
+              <strong style="margin-left: 5px">联系我们：</strong>
+              <div style="margin-left: 24px">
+                📧 官方邮箱：support@tech-forum.cn<br>
+                💬 客服QQ：800800800<br>
+                🕒 服务时间：9:00-18:00 (工作日)
+              </div>
+            </div>
           </div>
         </light-card>
         <light-card style="margin-top: 10px">
